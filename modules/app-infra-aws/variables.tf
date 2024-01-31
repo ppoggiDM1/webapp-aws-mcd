@@ -57,7 +57,8 @@ variable "az2" {
 variable "ec2_instance_ami" {
   description = "ec2 instance ami id"
   type        = string
-  default     = "ami-09024b009ae9e7adf"
+  default     = "ami-0faab6bdbac9486fb"
+
 }
 
 
