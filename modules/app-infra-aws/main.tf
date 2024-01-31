@@ -114,20 +114,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
   to_port           = 443
 }
 
-resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv6" {
-  security_group_id = aws_security_group.allow_tls.id
-  cidr_ipv6         = aws_vpc.custom_vpc.ipv6_cidr_block
-  from_port         = 443
-  ip_protocol       = "tcp"
-  to_port           = 443
-}
-resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv6" {
-  security_group_id = aws_security_group.allow_tls.id
-  cidr_ipv6         = aws_vpc.custom_vpc.ipv6_cidr_block
-  from_port         = 22
-  ip_protocol       = "tcp"
-  to_port           = 22
-}
+
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   security_group_id = aws_security_group.allow_tls.id
@@ -135,11 +122,6 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
-resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
-  security_group_id = aws_security_group.allow_tls.id
-  cidr_ipv6         = "::/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
-}
 
 
 
@@ -154,7 +136,11 @@ resource "aws_instance" "ec2_1" {
    instance_type           = var.ec2_instance_type
    availability_zone       = var.az1
    subnet_id               = aws_subnet.public_subnet.id
+   key_name                = "terraform-key-devops-admin	"
    vpc_security_group_ids  = [aws_security_group.allow_tls.id] 
+   tags = {
+      name = "k8s-master"
+  }
    user_data               = <<EOF
 #!/bin/bash
 EC2-instance on AWS
@@ -173,13 +159,10 @@ systemctl status docker.service
 yum install golang -y
 
 #install kind
-go install sigs.k8s.io/kind@v0.20.0.
+go install sigs.k8s.io/kind@v0.20.0 .
 
        EOF
 
-   tags = {
-      name = "ec2_1"
-  }
 }
 
 # 2nd ec2 instance on public subnet 1
@@ -188,7 +171,11 @@ resource "aws_instance" "ec2_2" {
    instance_type           = var.ec2_instance_type
    availability_zone       = var.az1
    subnet_id               = aws_subnet.public_subnet.id
-   vpc_security_group_ids  = [aws_security_group.allow_tls.id] 
+   key_name                = "terraform-key-devops-admin	"
+   vpc_security_group_ids  = [aws_security_group.allow_tls.id]
+   tags = {
+      Name = "k8s-worker1"
+  } 
    user_data               = <<EOF
 #!/bin/bash
 EC2-instance on AWS
@@ -197,9 +184,7 @@ EC2-instance on AWS
 yum update -y
        EOF
 
-   tags = {
-      name = "ec2_2"
-  }
+
 }
 
 # 3rd ec2 instance on public subnet 1
@@ -208,7 +193,11 @@ resource "aws_instance" "ec2_3" {
    instance_type           = var.ec2_instance_type
    availability_zone       = var.az1
    subnet_id               = aws_subnet.public_subnet.id
+   key_name                = "terraform-key-devops-admin	"
    vpc_security_group_ids  = [aws_security_group.allow_tls.id] 
+   tags = {
+      Name = "k8s-worker2"
+  }
    user_data               = <<EOF
 #!/bin/bash
 EC2-instance on AWS
@@ -217,7 +206,5 @@ EC2-instance on AWS
 yum update -y
        EOF
 
-   tags = {
-      name = "ec2_3"
-  }
+
 }

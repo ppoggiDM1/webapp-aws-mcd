@@ -32,8 +32,5 @@ module "app-infra-aws" {
 
   application_name = var.appname
 
-  tags = {
-    Terraform   = "true"
-    Environment = var.environment
-  }
+
 } 
