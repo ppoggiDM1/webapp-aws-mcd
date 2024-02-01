@@ -17,7 +17,7 @@ resource "aws_vpc" "custom_vpc" {
    cidr_block       = var.vpc_cidr
 
    tags = {
-      name = "{}-front-end"
+      name = "bestbag-application-for-mcd"
    }
 }
 
@@ -179,7 +179,7 @@ resource "aws_instance" "ec2_backend" {
    instance_type           = var.ec2_instance_type
    availability_zone       = var.az1
    subnet_id               = aws_subnet.public_subnet.id
-   key_name                = "terraform-key-devops-admin	"
+   key_name                = "terraform-key-devops-admin"
    vpc_security_group_ids  = [aws_security_group.allow_in_443_22_80.id]
    root_block_device {
       volume_size = 30 # in GB 
