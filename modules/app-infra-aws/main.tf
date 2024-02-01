@@ -153,6 +153,8 @@ id ec2-user
 newgrp docker
 systemctl status docker.service
 
+
+
        EOF
 
 }
