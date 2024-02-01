@@ -1,4 +1,9 @@
 
-output "k8s-master" {
-    value = ["${aws_instance.ec2_1.*.public_ip}"]
+output "frontend-nodes" {
+    value = ["${aws_instance.ec2_frontend.*.public_ip}"]
+}
+
+
+output "backend-nodes" {
+    value = ["${aws_instance.ec2_backendend.*.public_ip}"]
 }

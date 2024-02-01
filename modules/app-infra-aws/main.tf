@@ -135,7 +135,6 @@ resource "aws_instance" "ec2_frontend" {
    key_name                = "terraform-key-devops-admin	"
    associate_public_ip_address = true
    vpc_security_group_ids  = [aws_security_group.allow_tls.id] 
-   delete_on_termination = true
    tags = {
       Name = "frontend-${count.index}"
    }
