@@ -71,17 +71,12 @@ resource "aws_route_table" "rt" {
   }
 }
 
-
 # tags are not allowed here 
 # associate route table to the public subnet 1
 resource "aws_route_table_association" "public_rt" {
    subnet_id      = aws_subnet.public_subnet.id
    route_table_id = aws_route_table.rt.id
 }
-
-
-
-
 
 # tags are not allowed here 
 # associate route table to the private subnet 1
@@ -90,34 +85,46 @@ resource "aws_route_table_association" "private_rt" {
    route_table_id = aws_route_table.rt.id
 }
 
-
-resource "aws_security_group" "allow_tls" {
-  name        = "allow_tls"
-  description = "Allow TLS inbound traffic and all outbound traffic"
+resource "aws_security_group" "allow_in_443_22_80" {
+  name        = "allow_in_443_22_80"
+  description = "Allow TLS SSH HTTP inbound traffic and all outbound traffic"
   vpc_id      = aws_vpc.custom_vpc.id
 
   tags = {
-    Name = "allow_tls"
+    Name = "allow_tls_ssh_http_in"
   }
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
-  security_group_id = aws_security_group.allow_tls.id
+  security_group_id = aws_security_group.allow_in_443_22_80.id
   cidr_ipv4         = aws_vpc.custom_vpc.cidr_block
   from_port         = 443
   ip_protocol       = "tcp"
   to_port           = 443
 }
 
-
-
-resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
-  security_group_id = aws_security_group.allow_tls.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
+resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv4" {
+  security_group_id = aws_security_group.allow_in_443_22_80.id
+  cidr_ipv4         = aws_vpc.custom_vpc.cidr_block
+  from_port         = 22
+  ip_protocol       = "tcp"
+  to_port           = 22
 }
 
 
+resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv4" {
+  security_group_id = aws_security_group.allow_in_443_22_80.id
+  cidr_ipv4         = aws_vpc.custom_vpc.cidr_block
+  from_port         = 80
+  ip_protocol       = "tcp"
+  to_port           = 80
+}
+
+resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
+  security_group_id = aws_security_group.allow_in_443_22_80.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1" # semantically equivalent to all ports
+}
 
 
 # INSTANCES BLOCK - EC2 and DATABASE
@@ -132,9 +139,9 @@ resource "aws_instance" "ec2_frontend" {
    instance_type           = var.ec2_instance_type
    availability_zone       = var.az1
    subnet_id               = aws_subnet.public_subnet.id
-   key_name                = "terraform-key-devops-admin	"
+   key_name                = "terraform-key-devops-admin"
    associate_public_ip_address = true
-   vpc_security_group_ids  = [aws_security_group.allow_tls.id] 
+   vpc_security_group_ids  = [aws_security_group.allow_in_443_22_80.id] 
    tags = {
       Name = "frontend-${count.index}"
    }
@@ -152,7 +159,9 @@ id ec2-user
 newgrp docker
 systemctl status docker.service
 
-
+sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose version
 
        EOF
 
@@ -166,7 +175,7 @@ resource "aws_instance" "ec2_backend" {
    availability_zone       = var.az1
    subnet_id               = aws_subnet.public_subnet.id
    key_name                = "terraform-key-devops-admin	"
-   vpc_security_group_ids  = [aws_security_group.allow_tls.id]
+   vpc_security_group_ids  = [aws_security_group.allow_in_443_22_80.id]
    tags = {
       Name = "backend-${count.index}"
   } 
