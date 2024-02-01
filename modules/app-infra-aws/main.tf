@@ -127,7 +127,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
 # as echo statement is long
 # 1st ec2 instance on public subnet 1
 resource "aws_instance" "ec2_frontend" {
-   count= var.nof_master_nodes
+   count= var.nof_frontend_nodes
    ami                     = var.ec2_instance_ami
    instance_type           = var.ec2_instance_type
    availability_zone       = var.az1
@@ -137,7 +137,7 @@ resource "aws_instance" "ec2_frontend" {
    vpc_security_group_ids  = [aws_security_group.allow_tls.id] 
    delete_on_termination = true
    tags = {
-      Name = "frontnend-${count.index}"
+      Name = "frontend-${count.index}"
    }
    user_data               = <<EOF
 #!/bin/bash
@@ -161,7 +161,7 @@ systemctl status docker.service
 
 # 2nd ec2 instance on public subnet 1
 resource "aws_instance" "ec2_backend" {
-   count= var.nof_worker_nodes
+   count= var.nof_backend_nodes
    ami                     = var.ec2_instance_ami
    instance_type           = var.ec2_instance_type
    availability_zone       = var.az1
