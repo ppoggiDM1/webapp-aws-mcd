@@ -5,5 +5,5 @@ output "frontend-nodes" {
 
 
 output "backend-nodes" {
-    value = ["${aws_instance.ec2_backendend.*.public_ip}"]
+    value = ["${aws_instance.ec2_backend.*.public_ip}"]
 }
