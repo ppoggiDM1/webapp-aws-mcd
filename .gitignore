@@ -1,2 +1,4 @@
 secret.tfvars
+.terraform.lock.hcl
 *.hcl
+.gitignore
