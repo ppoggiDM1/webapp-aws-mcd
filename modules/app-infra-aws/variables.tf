@@ -69,4 +69,16 @@ variable "ec2_instance_type" {
   default     = "t2.micro"
 }
 
+variable "nof_master_nodes"{
+  description = "Front End nodes"
+  type        = number 
+  default     =   1
+}
+
+variable "nof_worker_nodes"{
+  description = "BackEnd nodes"
+  type        = number 
+  default     =   1
+}
+
  

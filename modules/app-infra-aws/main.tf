@@ -11,9 +11,6 @@
 
 # PROVIDER BLOCK
 
-
-
-
 # VPC BLOCK
 # creating VPC
 resource "aws_vpc" "custom_vpc" {
@@ -36,8 +33,6 @@ resource "aws_subnet" "public_subnet" {
    }
 }
 
-
- 
 
 # private subnet 1
 resource "aws_subnet" "private_subnet" {   
@@ -131,16 +126,19 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
 # if used with file option - get multi-line argument error 
 # as echo statement is long
 # 1st ec2 instance on public subnet 1
-resource "aws_instance" "ec2_1" {
+resource "aws_instance" "ec2_frontend" {
+   count= var.nof_master_nodes
    ami                     = var.ec2_instance_ami
    instance_type           = var.ec2_instance_type
    availability_zone       = var.az1
    subnet_id               = aws_subnet.public_subnet.id
    key_name                = "terraform-key-devops-admin	"
+   associate_public_ip_address = true
    vpc_security_group_ids  = [aws_security_group.allow_tls.id] 
+   delete_on_termination = true
    tags = {
-      name = "k8s-master"
-  }
+      Name = "frontnend-${count.index}"
+   }
    user_data               = <<EOF
 #!/bin/bash
 EC2-instance on AWS
@@ -155,18 +153,13 @@ id ec2-user
 newgrp docker
 systemctl status docker.service
 
-# install golang
-yum install golang -y
-
-#install kind
-go install sigs.k8s.io/kind@v0.20.0 .
-
        EOF
 
 }
 
 # 2nd ec2 instance on public subnet 1
-resource "aws_instance" "ec2_2" {
+resource "aws_instance" "ec2_backend" {
+   count= var.nof_worker_nodes
    ami                     = var.ec2_instance_ami
    instance_type           = var.ec2_instance_type
    availability_zone       = var.az1
@@ -174,30 +167,8 @@ resource "aws_instance" "ec2_2" {
    key_name                = "terraform-key-devops-admin	"
    vpc_security_group_ids  = [aws_security_group.allow_tls.id]
    tags = {
-      Name = "k8s-worker1"
+      Name = "backend-${count.index}"
   } 
-   user_data               = <<EOF
-#!/bin/bash
-EC2-instance on AWS
-# Update Repos
-#!/bin/bash
-yum update -y
-       EOF
-
-
-}
-
-# 3rd ec2 instance on public subnet 1
-resource "aws_instance" "ec2_3" {
-   ami                     = var.ec2_instance_ami
-   instance_type           = var.ec2_instance_type
-   availability_zone       = var.az1
-   subnet_id               = aws_subnet.public_subnet.id
-   key_name                = "terraform-key-devops-admin	"
-   vpc_security_group_ids  = [aws_security_group.allow_tls.id] 
-   tags = {
-      Name = "k8s-worker2"
-  }
    user_data               = <<EOF
 #!/bin/bash
 EC2-instance on AWS
