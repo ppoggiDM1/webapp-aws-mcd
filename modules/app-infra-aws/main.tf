@@ -157,6 +157,8 @@ EC2-instance on AWS
 #!/bin/bash
 yum update -y
 
+yum install -y git
+
 # Install Docker
 yum install -y docker
 id ec2-user
@@ -197,6 +199,8 @@ EC2-instance on AWS
 # Update Repos
 #!/bin/bash
 yum update -y
+
+yum -y install git
 
 # Install Docker
 yum install -y docker
