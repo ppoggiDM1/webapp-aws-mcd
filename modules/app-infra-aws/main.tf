@@ -141,7 +141,12 @@ resource "aws_instance" "ec2_frontend" {
    subnet_id               = aws_subnet.public_subnet.id
    key_name                = "terraform-key-devops-admin"
    associate_public_ip_address = true
-   vpc_security_group_ids  = [aws_security_group.allow_in_443_22_80.id] 
+   vpc_security_group_ids  = [aws_security_group.allow_in_443_22_80.id]
+   root_block_device {
+      volume_size = 30 # in GB 
+       volume_type = "gp3"
+      encrypted   = false
+   } 
    tags = {
       Name = "frontend-${count.index}"
    }
@@ -176,6 +181,11 @@ resource "aws_instance" "ec2_backend" {
    subnet_id               = aws_subnet.public_subnet.id
    key_name                = "terraform-key-devops-admin	"
    vpc_security_group_ids  = [aws_security_group.allow_in_443_22_80.id]
+   root_block_device {
+      volume_size = 30 # in GB 
+       volume_type = "gp3"
+      encrypted   = false
+   } 
    tags = {
       Name = "backend-${count.index}"
   } 

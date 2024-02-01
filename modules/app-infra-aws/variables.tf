@@ -41,7 +41,7 @@ variable "private_subnet" {
 variable "az1" {
   description = "availability zone 1"
   type        = string
-  default     = "eu-central-1a"
+  default     = "us-east-1a"
 }
 
 
@@ -49,7 +49,7 @@ variable "az1" {
 variable "az2" {
   description = "availability zone 2"
   type        = string
-  default     = "eu-central-1b"
+  default     = "us-east-1b"
 }
 
 
@@ -57,7 +57,8 @@ variable "az2" {
 variable "ec2_instance_ami" {
   description = "ec2 instance ami id"
   type        = string
-  default     = "ami-0faab6bdbac9486fb"
+  default     = "ami-0277155c3f0ab2930"
+
 
 }
 
